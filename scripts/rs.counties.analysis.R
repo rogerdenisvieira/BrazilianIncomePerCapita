@@ -1,14 +1,12 @@
-######################################## Loading dataframe from a CSV #########################################
+################################# Loading counties' dataframe from a CSV #######################################
 
 br.counties <- read.csv("./data/county_data_91-00-10.csv", header = TRUE, sep = ";")
 
-################### Applying a filter into dataframe by year and state Rio Grande do Sul #####################
+################### Applying a filter into dataframe by year and state Rio Grande do Sul ######################
 
 #rs.counties.1991 <- subset.data.frame(br.counties, ANO==1991 & UF==43)
 rs.counties.2000 <- subset.data.frame(br.counties, ANO==2000 & UF==43)
 rs.counties.2010 <- subset.data.frame(br.counties, ANO==2010 & UF==43)
-
-
 
 ######################################### Plotting scatter graphics ###########################################
 
@@ -111,6 +109,15 @@ predict.poa.metro.2010 <- subset.data.frame(predict.rs.counties.2010,
                                               rs.counties.2010$Codmun7 == "4310108"
                                             )
 
+barplot(
+  predict.poa.metro.2010$rs.counties.2010.RDPC,
+  horiz = FALSE,
+  names.arg = predict.poa.metro.2010$rs.counties.2010.Municipio,
+  cex.names = 0.8,
+  las = 3,
+  beside = TRUE,
+  ylim = c(0,2000)
+)
 
 
 
