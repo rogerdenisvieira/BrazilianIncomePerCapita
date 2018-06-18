@@ -1,10 +1,9 @@
 ################################# Loading counties' dataframe from a CSV #######################################
 
-br.counties <- read.csv("./data/county_data_91-00-10.csv", header = TRUE, sep = ";")
+br.counties <- read.csv("./data/county_data_91-00-10.csv", header = TRUE, sep = ";") 
 
 ################### Applying a filter into dataframe by year and state Rio Grande do Sul ######################
 
-#rs.counties.1991 <- subset.data.frame(br.counties, ANO==1991 & UF==43)
 rs.counties.2000 <- subset.data.frame(br.counties, ANO==2000 & UF==43)
 rs.counties.2010 <- subset.data.frame(br.counties, ANO==2010 & UF==43)
 
@@ -66,11 +65,11 @@ coeficients.counties.2000 <- lm(
   + rs.counties.2000$T_ENV
 )
 
-########################## Fitting linear regression coeficients into RS counties #############################
+########################## Fitting linear regression coeficients into all RS counties ########################
 
 predict.rs.counties.2010 <- data.frame(rs.counties.2010$Municipio, rs.counties.2010$Codmun7, rs.counties.2010$RDPC, fitted(coeficients.counties.2000))
 
-###################### Taking counties that compound Porto Alegre's metropolitan region #######################
+##################### Taking counties that compound Porto Alegre's metropolitan region #######################
 
 predict.poa.metro.2010 <- subset.data.frame(predict.rs.counties.2010, 
                                               rs.counties.2010$Codmun7 == "4300604" |
@@ -109,17 +108,52 @@ predict.poa.metro.2010 <- subset.data.frame(predict.rs.counties.2010,
                                               rs.counties.2010$Codmun7 == "4310108"
                                             )
 
+colnames(predict.poa.metro.2010) <- c('Municipio', 'Codigo', 'RDPC_Real', 'RDPC_Estimado')
+
+
+######################## Plotting a comparison bargraph between Real x Estimated RDPC ########################
+
+# setting margins parameters
+op <- par(mar=c(10,4,4,2))
+
+# putting data into a transposed matrix
+rdpc.matrix <- t(
+  cbind(
+    predict.poa.metro.2010$RDPC_Real, 
+    predict.poa.metro.2010$RDPC_Estimado
+    )
+  )
+
+# putting column and row names
+colnames(rdpc.matrix) <- predict.poa.metro.2010$Municipio
+rownames(rdpc.matrix) <- c('RDPC Real','RDPC Estimado')
+
+# plotting
 barplot(
-  predict.poa.metro.2010$rs.counties.2010.RDPC,
-  horiz = FALSE,
-  names.arg = predict.poa.metro.2010$rs.counties.2010.Municipio,
-  cex.names = 0.8,
-  las = 3,
-  beside = TRUE,
-  ylim = c(0,2000)
-)
+  rdpc.matrix,
+  ylim = c(0,2000),
+  las = 2,
+  col = c(16,17),
+  cex.axis = 0.65,
+  cex.names = 0.65,
+  beside = TRUE)
 
+legend(
+  "topright",
+  fill = c(16,17),
+  legend = rownames(rdpc.matrix), 
+  cex = 0.65
+  )
 
+# removing margin parameters from memory
+rm(op)
 
+############################################ Calculating residuals ###########################################
 
+plot(fitted(coeficients.counties.2000), residuals(coeficients.counties.2000))
+plot(rs.counties.2000$IDHM, residuals(coeficients.counties.2000))
+plot(rs.counties.2000$T_SUPER25M, residuals(coeficients.counties.2000))
+plot(rs.counties.2000$TRABPUB, residuals(coeficients.counties.2000))
+plot(rs.counties.2000$T_ENV, residuals(coeficients.counties.2000))
+plot(rs.counties.2000$PEA18M, residuals(coeficients.counties.2000))
 
